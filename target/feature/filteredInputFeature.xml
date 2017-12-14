@@ -18,9 +18,9 @@
 -->
 <features name="mavenproject2-1.0-SNAPSHOT" xmlns="http://karaf.apache.org/xmlns/features/v1.0.0">
 
-    <feature name='mavenproject2' description='mavenproject2-kar' version='1.0-SNAPSHOT' resolver="${resolver}">
+    <feature name='mavenproject2' description='mavenproject2-kar' version='1.0-SNAPSHOT' >
         <details>mavenproject2 details</details>
-         <configfile finalname="/etc/app.conf">mvn:com.mycompany/mavenproject2/1.0-SNAPSHOT/cfg/app.test</configfile>    
+         <configfile finalname="app.conf">mvn:com.mycompany/mavenproject2/1.0-SNAPSHOT/cfg/app.test</configfile>    
         <!-- <config>foo=bar</config> -->
     </feature>
 
