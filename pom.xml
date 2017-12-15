@@ -23,7 +23,7 @@
     <groupId>com.mycompany</groupId>
     <artifactId>mavenproject2</artifactId>
     <version>1.0-SNAPSHOT</version>
-    <packaging>kar</packaging>
+    <packaging>jar</packaging>
 
     <name>mavenproject2-kar</name>
     <description>mavenproject2 details</description>
@@ -31,17 +31,32 @@
     <dependencies>
         <!-- add the artifacts that should be in the kar in the dependencies set -->
     </dependencies>
-    
-    <build>
-        <!--resources>
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+    <profiles>
+        <profile>
+            <id>dev</id>
+            <properties>
+                <resources.cfg>src/main/resources/dev</resources.cfg>
+            </properties>
+        </profile>
+        <profile>
+            <id>prod</id>
+            <properties>
+                <resources.cfg>src/main/resources/prod</resources.cfg>
+            </properties>
+        </profile>
+    </profiles>
+    <build> 
+        <resources>
             <resource>
-                <directory>${project.basedir}\src\main\feature</directory>
-                <filtering>true</filtering>
-                <includes>
-                    <include>**/*</include>
-                </includes>
+                <directory>src/main/resources/OSGI-INF</directory>
             </resource>
-        </resources-->
+            <resource>
+                <directory>${resources.cfg}</directory>
+            </resource>
+        </resources>
         <pluginManagement>
             <plugins>
                 <plugin>
@@ -53,59 +68,72 @@
             </plugins>
         </pluginManagement>
         <plugins>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                    <maxmem>256M</maxmem>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.0.2</version>
+                <configuration>
+                    <archive>
+                        <manifestFile>${project.build.outputDirectory}/META-INF/MANIFEST.MF</manifestFile>
+                    </archive>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.camel</groupId>
+                <artifactId>camel-maven-plugin</artifactId>
+                <version>2.20.1</version>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <version>3.3.0</version>
+                <extensions>true</extensions>
+                <executions>
+                    <execution>
+                        <id>bundle-manifest</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>manifest</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>org.apache.karaf.tooling</groupId>
                 <artifactId>karaf-maven-plugin</artifactId>
-                <configuration>
-                    <startLevel>50</startLevel>
-                    <aggregateFeatures>true</aggregateFeatures>
-                    <resolver>(obr)</resolver>
-                    <checkDependencyChange>true</checkDependencyChange>
-                    <failOnDependencyChange>false</failOnDependencyChange>
-                    <logDependencyChanges>true</logDependencyChanges>
-                    <overwriteChangedDependencies>true</overwriteChangedDependencies>
-                </configuration>
-            </plugin>
-            <!--plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-resources-plugin</artifactId>
                 <executions>
                     <execution>
-                        <id>filter</id>
-                        <phase>generate-resources</phase>
-                        <goals>
-                            <goal>resources</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin-->
-            <!--plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>build-helper-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>attach-artifact</id>
+                        <id>generate-features-file</id>
                         <phase>package</phase>
                         <goals>
-                            <goal>attach-artifact</goal>
+                            <goal>features-generate-descriptor</goal>
                         </goals>
                         <configuration>
-                            <artifacts>
-                                <artifact>
-                                    <file>target/classes/features.xml</file>
-                                    <type>xml</type>
-                                    <classifier>features</classifier>
-                                </artifact>
-                                <artifact>
-                                    <file>target/classes/app.test.cfg</file>
-                                    <type>cfg</type>
-                                    <classifier>app.test</classifier>
-                                </artifact>
-                            </artifacts>
+                            <includeProjectArtifact>true</includeProjectArtifact>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>kar</id>
+                        <goals>
+                            <goal>kar</goal>
+                        </goals>
+                        <configuration>
+                            <classifier>kar</classifier>
+                            <!--featuresFile>${project.build.directory}/feature/feature.xml</featuresFile-->
                         </configuration>
                     </execution>
                 </executions>
-            </plugin-->
+            </plugin>
         </plugins>
     </build>
 
