@@ -35,11 +35,18 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
     <profiles>
+        <!--ограничиваем структуру каталогов в зависимости от профиля-->
         <profile>
             <id>dev</id>
             <properties>
                 <resources.cfg>src/main/resources/dev</resources.cfg>
             </properties>
+            <!--activation>
+                <property>
+                    <name></name>
+                    <value></value>
+                </property>
+            </activation-->
         </profile>
         <profile>
             <id>prod</id>
@@ -49,6 +56,7 @@
         </profile>
     </profiles>
     <build> 
+        <!--выбираем пути к ресурсам-->
         <resources>
             <resource>
                 <directory>src/main/resources/OSGI-INF</directory>
@@ -57,27 +65,19 @@
                 <directory>${resources.cfg}</directory>
             </resource>
         </resources>
-        <pluginManagement>
-            <plugins>
-                <plugin>
-                    <groupId>org.apache.karaf.tooling</groupId>
-                    <artifactId>karaf-maven-plugin</artifactId>
-                    <version>4.1.1</version>
-                    <extensions>true</extensions>
-                </plugin>
-            </plugins>
-        </pluginManagement>
         <plugins>
-
+            <!--используем java 8-->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.7.0</version>
                 <configuration>
                     <source>1.8</source>
                     <target>1.8</target>
                     <maxmem>256M</maxmem>
                 </configuration>
             </plugin>
+            <!--без этого просто не будет работать-->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
@@ -88,16 +88,25 @@
                     </archive>
                 </configuration>
             </plugin>
+            <!--позволяет запускать в IDE маршруты camel-->
             <plugin>
                 <groupId>org.apache.camel</groupId>
                 <artifactId>camel-maven-plugin</artifactId>
                 <version>2.20.1</version>
             </plugin>
+            <!--собирает сам бандл с маршрутом-->
             <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
                 <version>3.3.0</version>
                 <extensions>true</extensions>
+                <configuration>
+                    <logResults>true</logResults>
+                    <instructions>
+                        <!--относительный путь к маршруту см. "resources"-->
+                        <Bundle-Blueprint>blueprint/route.xml</Bundle-Blueprint> 
+                    </instructions>
+                </configuration>
                 <executions>
                     <execution>
                         <id>bundle-manifest</id>
@@ -108,9 +117,13 @@
                     </execution>
                 </executions>
             </plugin>
+            <!--пакует бандл в KAR и генерирует feature-->
             <plugin>
                 <groupId>org.apache.karaf.tooling</groupId>
                 <artifactId>karaf-maven-plugin</artifactId>
+                <version>4.1.1</version>
+                <extensions>true</extensions>
+                <!--команда на генерацию feature, которая будет включать бандл с маршрутом-->
                 <executions>
                     <execution>
                         <id>generate-features-file</id>
@@ -129,6 +142,10 @@
                         </goals>
                         <configuration>
                             <classifier>kar</classifier>
+                            <!--
+                            в случае необходимости ручной настройки feature раскомментировать
+                            тег ниже в нем указать путь к файлу 
+                            -->
                             <!--featuresFile>${project.build.directory}/feature/feature.xml</featuresFile-->
                         </configuration>
                     </execution>
